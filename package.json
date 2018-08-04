@@ -1,0 +1,27 @@
+{
+  "name": "posenet-ws",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "watch-client": "NODE_ENV=development parcel --no-hmr ./client/index.html ",
+    "build-client": "NODE_ENV=production parcel build ./client/index.html  --no-minify --public-url ./",
+    "build-electron": "tsc",
+    "watch-electron": "tsc -w",
+    "watch": "yarn run watch-client && yarn run watch-electron",
+    "start": "yarn run watch & electron ./dist/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow-models/posenet": "^0.2.2",
+    "@tensorflow/tfjs": "^0.12.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "clang-format": "^1.2.3",
+    "dat.gui": "^0.7.2",
+    "electron": "^2.0.6",
+    "parcel-bundler": "~1.6.2",
+    "typescript": "^3.0.1"
+  }
+}
