@@ -4,7 +4,19 @@ import * as tf from '@tensorflow/tfjs';
 const color = 'aqua';
 const lineWidth = 2;
 
-function toTuple({y, x}) {
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
+
+function isiOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+export function isMobile() {
+  return isAndroid() || isiOS();
+}
+
+function toTuple({y, x}: {x: number, y: number}): NumberTuple {
   return [y, x];
 }
 
@@ -15,10 +27,14 @@ export function drawPoint(ctx, y, x, r, color) {
   ctx.fill();
 }
 
+type NumberTuple = [number, number];
+
 /**
  * Draws a line on a canvas, i.e. a joint
  */
-export function drawSegment([ay, ax], [by, bx], color, scale, ctx) {
+export function drawSegment(
+    [ay, ax]: NumberTuple, [by, bx]: NumberTuple, lineWidth: number,
+    color: string, scale: number, ctx: CanvasRenderingContext2D) {
   ctx.beginPath();
   ctx.moveTo(ax * scale, ay * scale);
   ctx.lineTo(bx * scale, by * scale);
@@ -30,21 +46,26 @@ export function drawSegment([ay, ax], [by, bx], color, scale, ctx) {
 /**
  * Draws a pose skeleton by looking up all adjacent keypoints/joints
  */
-export function drawSkeleton(keypoints, minConfidence, ctx, scale = 1) {
+export function drawSkeleton(
+    keypoints: posenet.Keypoint[], minConfidence: number,
+    ctx: CanvasRenderingContext2D, lineThickness: number, color: string,
+    scale = 1) {
   const adjacentKeyPoints =
       posenet.getAdjacentKeyPoints(keypoints, minConfidence);
 
   adjacentKeyPoints.forEach((keypoints) => {
     drawSegment(
-        toTuple(keypoints[0].position), toTuple(keypoints[1].position), color,
-        scale, ctx);
+        toTuple(keypoints[0].position), toTuple(keypoints[1].position),
+        lineThickness, color, scale, ctx);
   });
 }
 
 /**
  * Draw pose keypoints onto a canvas
  */
-export function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
+export function drawKeypoints(
+    keypoints: posenet.Keypoint[], minConfidence: number,
+    ctx: CanvasRenderingContext2D, color: string, scale = 1) {
   for (let i = 0; i < keypoints.length; i++) {
     const keypoint = keypoints[i];
 

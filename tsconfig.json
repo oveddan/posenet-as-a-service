@@ -21,7 +21,7 @@
     "experimentalDecorators": true
   },
   "include": [
-    "./electron"
+    "./src"
   ],
   "exclude": [
     "node_modules/",
