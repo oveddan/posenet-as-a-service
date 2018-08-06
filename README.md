@@ -20,8 +20,7 @@ Start the node.js server and client (parcel) bundler:
 
     yarn start
 
-You can then open a browser window and start estimating poses, by going to http://localhost:1234; the poses wiil be sent from the client to the node server via websocket, and the server will broadcast that to the rest of the clients.
+You can then open a browser window and start estimating poses, by going to http://localhost:1234; the poses wiil be sent from the client to the node server via websocket, and the server will broadcast that to the rest of the clients.  The server sends and receives messages on port 8080.
 
-
-In TouchDesigner, a WebSocketDAT can be used to receive poses.
+In TouchDesigner, a WebSocketDAT can be used to receive poses.  Make sure the it is connecting to host: localhost and port: 8080
 
