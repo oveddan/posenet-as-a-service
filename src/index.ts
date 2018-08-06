@@ -1,8 +1,5 @@
 import * as posenet from '@tensorflow-models/posenet';
 import {MobileNetMultiplier} from '@tensorflow-models/posenet/dist/mobilenet';
-import * as socketio from 'socket.io-client';
-
-import {io} from '../node_modules/@tensorflow/tfjs';
 
 import {drawKeypoints, drawSkeleton, isMobile} from './demo_util';
 import {guiState, setupGui} from './gui';
