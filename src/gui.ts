@@ -26,7 +26,7 @@ export type GuiState = {
   changeToArchitecture: boolean,
   net?: posenet.PoseNet,
   camera?: string,
-  socket?: WebSocket
+  socket?: WebSocket, goFullScreen: () => void
 };
 
 export const guiState: GuiState = {
@@ -52,13 +52,15 @@ export const guiState: GuiState = {
   changeToArchitecture: false,
   net: null,
   camera: null,
-  socket: null
+  socket: null,
+  goFullScreen: null
 };
 
 /**
  * Sets up dat.gui controller on the top-right of the window
  */
-export function setupGui(cameras, net) {
+export function setupGui(
+    cameras, net: posenet.PoseNet, canvas: HTMLCanvasElement) {
   guiState.net = net;
 
   if (cameras.length > 0) {
@@ -109,4 +111,11 @@ export function setupGui(cameras, net) {
   architectureController.onChange(function(architecture) {
     guiState.changeToArchitecture = architecture;
   });
+
+  guiState.goFullScreen =
+      () => {
+        canvas.requestFullscreen();
+      }
+
+            gui.add(guiState, 'goFullScreen');
 }

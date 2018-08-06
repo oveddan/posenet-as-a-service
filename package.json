@@ -4,8 +4,14 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "watch": "NODE_ENV=development parcel --no-hmr --open ./index.html ",
-    "build": "NODE_ENV=production parcel build ./index.html  --no-minify --public-url ./"
+    "watch-client": "NODE_ENV=development parcel --no-hmr --open ./index.html ",
+    "build-client": "NODE_ENV=production parcel build ./index.html  --no-minify --public-url ./",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "watch-node": "nodemon dist/server.js",
+    "server": "node dist/server.js",
+    "serve-debug": "nodemon --inspect dist/server.js",
+    "start": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-client\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "author": "",
   "license": "ISC",
@@ -13,11 +19,21 @@
     "@tensorflow-models/posenet": "^0.2.2",
     "@tensorflow/tfjs": "^0.12.4",
     "@types/dat.gui": "^0.7.1",
+    "@types/express": "^4.16.0",
+    "@types/socket.io": "^1.4.36",
+    "@types/socket.io-client": "^1.4.32",
+    "@types/webmidi": "^2.0.2",
+    "@types/ws": "^5.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "clang-format": "^1.2.3",
+    "concurrently": "^3.6.1",
     "dat.gui": "^0.7.2",
+    "express": "^4.16.3",
     "parcel-bundler": "~1.6.2",
-    "typescript": "^3.0.1"
+    "socket.io": "0.9.16",
+    "socket.io-client": "^2.1.1",
+    "typescript": "^3.0.1",
+    "ws": "^6.0.0"
   }
 }

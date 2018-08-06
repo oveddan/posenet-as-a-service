@@ -1,11 +1,21 @@
 import * as posenet from '@tensorflow-models/posenet';
 import {MobileNetMultiplier} from '@tensorflow-models/posenet/dist/mobilenet';
+import * as socketio from 'socket.io-client';
+
+import {io} from '../node_modules/@tensorflow/tfjs';
 
 import {drawKeypoints, drawSkeleton, isMobile} from './demo_util';
 import {guiState, setupGui} from './gui';
 
-const videoWidth = 600;
-const videoHeight = 500;
+const defaultWidth = 640;
+const defaultHeight = 480;
+
+function minWidthOrValue(minWidth: number, value: number) {
+  if (value <= 2) {
+    return minWidth;
+  } else
+    return value;
+}
 
 async function setupCamera(): Promise<HTMLVideoElement> {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -14,22 +24,23 @@ async function setupCamera(): Promise<HTMLVideoElement> {
   }
 
   const video = document.getElementById('video') as HTMLVideoElement;
-  video.width = videoWidth;
-  video.height = videoHeight;
 
   const mobile = isMobile();
   const stream = await navigator.mediaDevices.getUserMedia({
     'audio': false,
     'video': {
       facingMode: 'user',
-      width: mobile ? undefined : videoWidth,
-      height: mobile ? undefined : videoHeight,
+      width: mobile ? undefined : defaultWidth,
+      height: mobile ? undefined : defaultHeight
     },
   });
   video.srcObject = stream;
 
+
   return new Promise((resolve) => {
            video.onloadedmetadata = () => {
+             video.width = minWidthOrValue(640, video.videoWidth);
+             video.height = minWidthOrValue(480, video.videoHeight);
              resolve(video);
            };
          }) as Promise<HTMLVideoElement>;
@@ -43,12 +54,12 @@ async function loadVideo() {
 }
 
 
-
 function setupWebSocket() {
-  // guiState.socket = new WebSocket('ws://127.0.0.1:8080');
+  const socket = new WebSocket('ws://localhost:8080');
+  guiState.socket = socket;
 }
 
-type OutputStride = 8|16|32
+type OutputStride = 8|16|32;
 
 // since images are being fed from a webcam
 const flipHorizontal = true;
@@ -72,6 +83,8 @@ async function estimateAndRenderPoses(
   minPoseConfidence = +guiState.poseDetection.minPoseConfidence;
   minPartConfidence = +guiState.poseDetection.minPartConfidence;
 
+  const {width: videoWidth, height: videoHeight} = video;
+
   ctx.clearRect(0, 0, videoWidth, videoHeight);
 
   if (guiState.output.showVideo) {
@@ -82,6 +95,14 @@ async function estimateAndRenderPoses(
     ctx.restore();
   }
 
+  const poseTime = new Date().getTime();
+
+  const message = {
+    poses,
+    image: {width: videoWidth, height: videoHeight},
+    poseTime
+  };
+  guiState.socket.send(JSON.stringify(message));
   // guiState.socket.send(JSON.stringify(poses));
 
   // For each pose (i.e. person) detected in an image, loop through the
@@ -101,13 +122,18 @@ async function estimateAndRenderPoses(
   });
 }
 
+const getCanvas = (): HTMLCanvasElement =>
+    document.getElementById('output') as HTMLCanvasElement;
+
 /**
  * Feeds an image to posenet to estimate poses - this is where the magic
  * happens. This function loops with a requestAnimationFrame method.
  */
 function detectPoseInRealTime(video: HTMLVideoElement, net: posenet.PoseNet) {
-  const canvas = document.getElementById('output') as HTMLCanvasElement;
+  const canvas = getCanvas();
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+  const {width: videoWidth, height: videoHeight} = video;
 
   canvas.width = videoWidth;
   canvas.height = videoHeight;
@@ -159,7 +185,7 @@ export async function bindPage() {
     throw e;
   }
 
-  setupGui(video, net);
+  setupGui(video, net, getCanvas());
   setupWebSocket();
   detectPoseInRealTime(video, net);
 }
