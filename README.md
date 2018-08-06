@@ -1,5 +1,7 @@
 # Posenet as a Service
 
+This is a **very early Work in Progress.**
+
 This repository provides a way to use PoseNet as a service.  It does human pose estimation
 using an RGB Image, then sends the estimated poses to all subscribers, allowing the pose data
 to be consumed in other programs either on the same machine or across a network.
